@@ -1,0 +1,77 @@
+<html>
+
+<head>
+	<title>Perseverance Gallery</title>
+</head>
+
+<body style="padding: 0; margin: 0;">
+	<div id=header></div>
+	<div id=content style="background-color: rgb(24, 24, 24);"></div>
+	<div id=footer></div>
+<body>
+
+<style>
+	p{
+		font-size: 20px;
+	}
+	.content_element{
+		border: 5px solid rgb(0, 0, 0);
+		color: white;
+		text-align: center;
+		padding: 20px;
+		padding-top: 50px;
+	}
+	img{
+		border: 3px solid white;
+	}
+</style>
+
+<script>
+var getJSON = function(url, callback) {
+	var xhr = new XMLHttpRequest();
+	xhr.open('GET', url, true);
+	xhr.responseType = 'json';
+	xhr.onload = function() {
+      		var status = xhr.status;
+      		if (status === 200) {
+        		callback(null, xhr.response);
+		} else {
+        		callback(status, xhr.response);
+      		}
+	};
+	xhr.send();
+};
+
+function extractImages(data){
+	var content = document.getElementById("content")
+	for (const index in data.images){
+		var image_element = data.images[index];
+		
+		var img = image_element.image_files.full_res;
+		var caption = image_element.caption;
+
+		var content_element = document.createElement("div");
+		content_element.className = "content_element"
+		var img_element = document.createElement("img");
+		img_element.setAttribute("src", img);
+		var description = document.createElement("p");
+		description.innerText = caption;
+
+		content_element.appendChild(img_element);
+		content_element.appendChild(description);
+		content.appendChild(content_element);
+	}
+}
+
+getJSON('https://mars.nasa.gov/rss/api/?feed=raw_images&category=mars2020&feedtype=json&num=50&page=0&order=sol+desc&&&undefined',
+function(err, data){
+	if (err !== null){
+		alert("Couldn't load json: " + err);
+	}else{
+		extractImages(data);
+	}
+});
+
+</script>
+
+</html>
