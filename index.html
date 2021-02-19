@@ -5,14 +5,34 @@
 </head>
 
 <body style="padding: 0; margin: 0;">
-	<div id=header></div>
-	<div id=content style="background-color: rgb(24, 24, 24);"></div>
+	<div id=header>
+		<img src="banner.jpg">
+	</div>
+	<div id=content></div>
 	<div id=footer></div>
 <body>
 
 <style>
 	p{
 		font-size: 20px;
+	
+	}
+	img{
+		max-width: 100%;
+		margin: 0 auto;
+  		display: block;
+		border: 3px solid white;
+	}
+	mark{
+		color: white;
+ 	   	background-color: inherit;
+		font-style: italic;
+	}
+	#header{
+		background-color: rgb(34, 34, 34);
+	}
+	#content{
+		background-color: rgb(24, 24, 24);
 	}
 	.content_element{
 		border: 5px solid rgb(0, 0, 0);
@@ -21,13 +41,14 @@
 		padding: 20px;
 		padding-top: 50px;
 		max-width: 100%;
-  		height: auto;
 	}
-	img{
-		border: 3px solid white;
+	.highlight{
+		background-color: yellow;
 	}
+	
 </style>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/mark.min.js"></script>
 <script>
 var getJSON = function(url, callback) {
 	var xhr = new XMLHttpRequest();
@@ -44,6 +65,8 @@ var getJSON = function(url, callback) {
 	xhr.send();
 };
 
+
+
 function extractImages(data){
 	var content = document.getElementById("content")
 	for (const index in data.images){
@@ -59,6 +82,9 @@ function extractImages(data){
 		var description = document.createElement("p");
 		description.innerText = caption;
 
+		var instance = new Mark(description);
+		instance.mark("image");
+
 		content_element.appendChild(img_element);
 		content_element.appendChild(description);
 		content.appendChild(content_element);
@@ -73,7 +99,6 @@ function(err, data){
 		extractImages(data);
 	}
 });
-
 </script>
 
 </html>
