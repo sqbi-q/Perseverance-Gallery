@@ -8,7 +8,19 @@
 	<div id=header>
 		<img src="banner.jpg">
 	</div>
-	<div id=content></div>
+
+	<div id=content>
+		<div id=raw_images>
+			<h1>
+				Images from <a href="https://mars.nasa.gov/mars2020/multimedia/raw-images/">https://mars.nasa.gov/mars2020/multimedia/raw-images/</a>
+			</h1>
+		</div>
+		<div id=library_images>
+			<h1>
+				Images from <a href="https://images.nasa.gov/">NASA Image and Video Library</a>
+			</h1>
+		</div>
+	</div>
 	<div id=footer></div>
 <body>
 
@@ -28,19 +40,48 @@
  	   	background-color: inherit;
 		font-style: italic;
 	}
+	h1{
+		background-color: rgb(116,22,48);
+		border-top: 5px solid rgb(204,30,44);
+		border-bottom: 5px solid rgb(204,30,44);
+		color: white;
+		text-align: center;
+		margin: 0;
+		padding: 10px;
+	}
 	#header{
 		background-color: rgb(34, 34, 34);
+	}
+	#display_box{
+		background-color: rgb(0, 66, 0);
+		font-size: 50px;
+		color: white;
+		position: fixed;
+		width: 50%;
+		left: 50%;
+		top: 50%;
+		transform: translate(-50%, -50%);
 	}
 	#content{
 		background-color: rgb(24, 24, 24);
 	}
-	.content_element{
+	.raw_images_element{
 		border: 5px solid rgb(0, 0, 0);
 		color: white;
 		text-align: center;
 		padding: 20px;
 		padding-top: 50px;
 		max-width: 100%;
+		background-color: rgb(30, 30, 30);
+	}
+	.library_images_element{
+		border: 5px solid rgb(0, 0, 0);
+		color: white;
+		text-align: center;
+		padding: 20px;
+		padding-top: 50px;
+		max-width: 100%;
+		background-color: rgb(50, 50, 50);
 	}
 	.highlight{
 		background-color: yellow;
@@ -50,6 +91,7 @@
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/mark.min.js"></script>
 <script>
+
 var getJSON = function(url, callback) {
 	var xhr = new XMLHttpRequest();
 	xhr.open('GET', url, true);
@@ -65,40 +107,88 @@ var getJSON = function(url, callback) {
 	xhr.send();
 };
 
-
-
-function extractImages(data){
-	var content = document.getElementById("content")
+function extractRawImages(data){
+	var raw_images_container = document.getElementById("raw_images");
 	for (const index in data.images){
 		var image_element = data.images[index];
 		
 		var img = image_element.image_files.full_res;
 		var caption = image_element.caption;
 
-		var content_element = document.createElement("div");
-		content_element.className = "content_element"
+		var raw_images_element = document.createElement("div");
+		raw_images_element.className = "raw_images_element";
+
+		var a_element = document.createElement("a");
+		a_element.href = image_element.link;
+
 		var img_element = document.createElement("img");
 		img_element.setAttribute("src", img);
+
 		var description = document.createElement("p");
 		description.innerText = caption;
 
 		var instance = new Mark(description);
 		instance.mark("image");
 
-		content_element.appendChild(img_element);
-		content_element.appendChild(description);
-		content.appendChild(content_element);
+		a_element.appendChild(img_element);
+		raw_images_element.appendChild(a_element);
+		raw_images_element.appendChild(description);
+		raw_images_container.appendChild(raw_images_element);
 	}
 }
 
+
+function extractAPI_Images(data){
+	var items = data.collection.items;
+	var library_images_container = document.getElementById('library_images');
+
+	for (const index in items){
+		if (items[index].links !== undefined){
+			var library_images_element = document.createElement("div");
+			library_images_element.className = "library_images_element";
+		
+			var a_element = document.createElement("a");
+			var desc_split = items[index].data[0].description.split(" ");
+			a_element.href = desc_split[desc_split.length - 1];
+			if (a_element.hostname != "photojournal.jpl.nasa.gov"){
+				a_element.href = ".";
+			}
+
+			var img_element = document.createElement("img");
+			img_element.setAttribute("src", items[index].links[0].href);
+
+			var description = document.createElement("p");
+			description.innerText = items[index].data[0].description_508;
+
+			a_element.appendChild(img_element);
+			library_images_element.appendChild(a_element);
+			library_images_element.appendChild(description);
+			library_images_container.appendChild(library_images_element);
+		}
+	}
+}
+
+
+//get raw images
 getJSON('https://mars.nasa.gov/rss/api/?feed=raw_images&category=mars2020&feedtype=json&num=50&page=0&order=sol+desc&&&undefined',
 function(err, data){
 	if (err !== null){
-		alert("Couldn't load json: " + err);
+		alert("Couldn't load raw images json: " + err);
 	}else{
-		extractImages(data);
+		extractRawImages(data);
 	}
 });
+//
+
+getJSON('https://images-api.nasa.gov/search?keywords=Mars%202020&center=JPL&year_start=2021&secondary_creator=NASA/JPL-Caltech&description=Perseverance%20image&title=Perseverance',
+function(err, data){
+	if (err !== null){
+		alert("Couldn't load new images: " + err);
+	}else{
+		extractAPI_Images(data);
+	}
+});
+
 </script>
 
 </html>
