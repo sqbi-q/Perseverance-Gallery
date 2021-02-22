@@ -10,10 +10,13 @@
 	</div>
 
 	<div id=content>
+		<h1>
+			Images from <a href="https://mars.nasa.gov/mars2020/multimedia/raw-images/">https://mars.nasa.gov/mars2020/multimedia/raw-images/</a>
+			<input type="checkbox" id="small_images" name="small_images" onchange="change_raw_images_size();">
+			<label for="small_images">Small images</label>
+		</h1>
 		<div id=raw_images>
-			<h1>
-				Images from <a href="https://mars.nasa.gov/mars2020/multimedia/raw-images/">https://mars.nasa.gov/mars2020/multimedia/raw-images/</a>
-			</h1>
+			
 		</div>
 		<div id=library_images>
 			<h1>
@@ -65,14 +68,23 @@
 	#content{
 		background-color: rgb(24, 24, 24);
 	}
+	#raw_images{
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		flex-wrap: wrap;
+	}
+	:root{
+		--raw_images_size: 100%;
+	}
 	.raw_images_element{
 		border: 5px solid rgb(0, 0, 0);
 		color: white;
 		text-align: center;
-		padding: 20px;
-		padding-top: 50px;
-		max-width: 100%;
+		padding: 10px;
+		padding-top: 20px;
 		background-color: rgb(30, 30, 30);
+		flex-basis: var(--raw_images_size);
 	}
 	.library_images_element{
 		border: 5px solid rgb(0, 0, 0);
@@ -112,7 +124,8 @@ function extractRawImages(data){
 	for (const index in data.images){
 		var image_element = data.images[index];
 		
-		var img = image_element.image_files.full_res;
+		//var img = image_element.image_files.full_res;
+		var img = image_element.image_files.medium;
 		var caption = image_element.caption;
 
 		var raw_images_element = document.createElement("div");
@@ -170,7 +183,10 @@ function extractAPI_Images(data){
 
 
 //get raw images
-getJSON('https://mars.nasa.gov/rss/api/?feed=raw_images&category=mars2020&feedtype=json&num=50&page=0&order=sol+desc&&&undefined',
+
+//https://mars.nasa.gov/rss/api/?feed=raw_images&category=mars2020&feedtype=json&num=200&order=sol+desc&&search=|FRONT_HAZCAM_RIGHT_A|FRONT_HAZCAM_RIGHT_B|FRONT_HAZCAM_LEFT_A|FRONT_HAZCAM_LEFT_B|REAR_HAZCAM_LEFT|REAR_HAZCAM_RIGHT&&extended=sample_type::full,sample_type::thumbnail,product_type::raw,product_type::color
+//https://mars.nasa.gov/rss/api/?feed=raw_images&category=mars2020&feedtype=json&num=50&page=0&order=sol+desc&&&undefined
+getJSON('https://mars.nasa.gov/rss/api/?feed=raw_images&category=mars2020&feedtype=json&num=100&order=sol+desc&&search=|FRONT_HAZCAM_RIGHT_A|FRONT_HAZCAM_RIGHT_B|FRONT_HAZCAM_LEFT_A|FRONT_HAZCAM_LEFT_B|REAR_HAZCAM_LEFT|REAR_HAZCAM_RIGHT&&extended=sample_type::full,sample_type::thumbnail,product_type::raw,product_type::color',
 function(err, data){
 	if (err !== null){
 		alert("Couldn't load raw images json: " + err);
@@ -179,6 +195,10 @@ function(err, data){
 	}
 });
 //
+
+function change_raw_images_size(){
+	document.documentElement.style.setProperty("--raw_images_size", ( document.getElementById("small_images").checked ? "10%" : "100%") );
+}
 
 getJSON('https://images-api.nasa.gov/search?keywords=Mars%202020&center=JPL&year_start=2021&secondary_creator=NASA/JPL-Caltech&description=Perseverance%20image&title=Perseverance',
 function(err, data){
